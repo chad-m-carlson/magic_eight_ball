@@ -10,7 +10,7 @@ end
 
 class Answers
   attr_accessor :answer
-
+  
   def initialize(answer)
     @answer = answer
   end
@@ -40,12 +40,13 @@ class MagicEightBall
       Answers.new("Outlook not so good."),
       Answers.new("Very doubtful"),
     ]
+    @cloned_answer_list = @answers.clone
     @submitted_questions = []
     main_menu
   end
-  puts "Welcome to the Magic Eight Ball application"
-  puts "Type 'HELP' at any time for a list of functions"
-  puts "Ask the magic eight ball a question"
+  puts "Welcome to the Magic Eight Ball application".colorize(:blue)
+  puts "Ask the magic eight ball as many questions as you would like.".colorize(:blue)
+  puts "Type 'HELP' at any time for a list of function".colorize(:blue)
 
   def main_menu
     prompt
@@ -55,12 +56,15 @@ class MagicEightBall
       help_menu
     when "add_answer"
       add_answer
-    when "view"
+    when "view_all_answers"
       view_all_answers
     when "quit"
+      puts "Goodbye".colorize(:blue)
       exit
     when "reset"
-      
+      reset_answers_to_start
+    when "clear"
+      clear_terminal
     else
       submit_question(question)
     end
@@ -75,44 +79,80 @@ def help_menu
   print "--To".colorize(:red).ljust(line_width/2)
   print "Type---".colorize(:yellow).rjust(line_width/2)
   puts
-  print "---Quit =".colorize(:red).ljust(line_width/2)
+  print "---Quit".colorize(:red).ljust(line_width/2)
   print "quit".colorize(:yellow).rjust(line_width/2)
   puts
-  print "---Add your own answer =".colorize(:red).ljust(line_width/2)
+  print "---Add your own answer".colorize(:red).ljust(line_width/2)
   print "add_answer".colorize(:yellow).rjust(line_width/2)
   puts
-  print "---View all available answers =".colorize(:red).ljust(line_width/2)
+  print "---View all available answers".colorize(:red).ljust(line_width/2)
   print "view_all_answers".colorize(:yellow).rjust(line_width/2)
   puts
-  print "---Reset answers back to  =".colorize(:red).ljust(line_width/2)
+  print "---Reset answers back to".colorize(:red).ljust(line_width/2)
   print "reset".colorize(:yellow).rjust(line_width/2)
+  puts
+  print "---Clear the terminal".colorize(:red).ljust(line_width/2)
+  print "clear".colorize(:yellow).rjust(line_width/2)
   puts
   puts "---".colorize(:red)
   main_menu
 end
 
 def add_answer
-  puts "this function isn't done yet"
+  puts "Enter your new answer".colorize(:blue)
+  new_answer = gets.strip
+  new_arr = []
+  @cloned_answer_list.each.with_index do |a, i|
+    new_arr << @cloned_answer_list[i].answer.downcase
+  end
+  if new_arr.include?(new_answer.downcase)
+    puts "This answer is already in the eight ball"
+    add_answer
+  end
+  new_answer = Answers.new(new_answer)
+  @cloned_answer_list << new_answer
+  binding.pry
   main_menu
 end
 
 def view_all_answers
-  @answers.each.with_index do |a, i|
-    puts "#{(i + 1)}) #{@answers[i].answer}"
+  if @cloned_answer_list.length > 20
+    @cloned_answer_list.each.with_index do |a, i|
+      puts "#{(i + 1)}) #{@cloned_answer_list[i].answer}"
+    end
+  else
+    @answers.each.with_index do |a, i|
+      puts "#{(i + 1)}) #{@answers[i].answer}"
+  end
   end
   main_menu
 end
 
 def submit_question(question)
   @submitted_questions << Questions.new(question)
-  # thinking
+  thinking
   give_answer
 end
 
 def give_answer
-  puts @answers[rand(0..(@answers.length - 1))].answer
+  if @cloned_answer_list.length > 20
+    puts @cloned_answer_list.sample.answer
+  else
+    puts @answers.sample.answer
+  end
   main_menu
 end
+
+def reset_answers_to_start
+  @cloned_answer_list = @answers.clone
+  main_menu
+end
+
+def clear_terminal
+  print `clear`
+  main_menu
+end
+
 # FORMATTING METHODS
 def thinking
   x = 0
