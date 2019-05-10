@@ -3,16 +3,26 @@ require "colorize"
 
 class Questions
   attr_accessor :submitted_questions
+
   def initialize(q)
-    @questions = q
+    @submitted_questions = q
   end
+
 end
 
 class Answers
   attr_accessor :answer
-  
+
   def initialize(answer)
     @answer = answer
+  end
+end
+
+class QandA #I CAN GET THE QUESTION AND ANSWER INTO THIS CLASS, BUT CANNOT PULL EACH INDIVIDUAL Q_ASKED OR A_GIVEN BACK OUT OF IT TO DISPLAY ALL THE RESULTS AT THE END
+attr_accessor :q_asked, :a_given
+
+  def initialize(asked_question, given_answer)
+    @result = {q_asked: asked_question, a_given: given_answer}
   end
 end
 
@@ -42,57 +52,58 @@ class MagicEightBall
     ]
     @cloned_answer_list = @answers.clone
     @submitted_questions = []
+    @result = []
     main_menu
   end
-  puts "Welcome to the Magic Eight Ball application".colorize(:blue)
-  puts "Ask the magic eight ball as many questions as you would like.".colorize(:blue)
-  puts "Type 'HELP' at any time for a list of function".colorize(:blue)
 
-  def main_menu
-    prompt
-    question = gets.strip.downcase
-    case question
-    when "help"
-      help_menu
-    when "add_answer"
-      add_answer
-    when "view_all_answers"
-      view_all_answers
-    when "quit"
-      puts "Goodbye".colorize(:blue)
-      exit
-    when "reset"
-      reset_answers_to_start
-    when "clear"
-      clear_terminal
-    else
-      submit_question(question)
-    end
+end
+puts "Welcome to the Magic Eight Ball application".colorize(:blue)
+puts "Ask the magic eight ball as many questions as you would like.".colorize(:blue)
+puts "Type 'HELP' at any time for a list of function".colorize(:blue)
+
+def main_menu
+  prompt
+  question = gets.strip.downcase
+  case question
+  when "help"
+    help_menu
+  when "add_answer"
+    add_answer
+  when "view_all_answers"
+    view_all_answers
+  when "quit"
+    # puts "Goodbye".colorize(:blue)
+    give_results
+    exit
+  when "reset"
+    reset_answers_to_start
+  when "clear"
+    clear_terminal
+  else
+    submit_question(question)
   end
-  
-  
 end
 
 #HELPER METHODS
 def help_menu
   line_width = 75
-  print "--To".colorize(:red).ljust(line_width/2)
-  print "Type---".colorize(:yellow).rjust(line_width/2)
+  print "--To".colorize(:red).ljust(line_width / 2)
+  print "Type---".colorize(:yellow).rjust(line_width / 2)
   puts
-  print "---Quit".colorize(:red).ljust(line_width/2)
-  print "quit".colorize(:yellow).rjust(line_width/2)
+  print "---Quit".colorize(:red).ljust(line_width / 2)
+  print "quit".colorize(:yellow).rjust(line_width / 2)
   puts
-  print "---Add your own answer".colorize(:red).ljust(line_width/2)
-  print "add_answer".colorize(:yellow).rjust(line_width/2)
+  print "---Add your own answer".colorize(:red).ljust(line_width / 2)
+  print "add_answer".colorize(:yellow).rjust(line_width / 2)
   puts
-  print "---View all available answers".colorize(:red).ljust(line_width/2)
-  print "view_all_answers".colorize(:yellow).rjust(line_width/2)
+  print "---View all available answers".colorize(:red).ljust(line_width / 2)
+  print "view_all_answers".colorize(:yellow).rjust(line_width / 2)
   puts
-  print "---Reset answers back to".colorize(:red).ljust(line_width/2)
-  print "reset".colorize(:yellow).rjust(line_width/2)
+  print "---Reset answers back to".colorize(:red).ljust(line_width / 2)
+  print "reset".colorize(:yellow).rjust(line_width / 2)
   puts
-  print "---Clear the terminal".colorize(:red).ljust(line_width/2)
-  print "clear".colorize(:yellow).rjust(line_width/2)
+  print "---Clear the terminal".colorize(:red).ljust(line_width / 2)
+  print "clear".colorize(:yellow).rjust(line_width / 2)
   puts
   puts "---".colorize(:red)
   main_menu
@@ -111,7 +122,6 @@ def add_answer
   end
   new_answer = Answers.new(new_answer)
   @cloned_answer_list << new_answer
-  binding.pry
   main_menu
 end
 
@@ -123,23 +133,26 @@ def view_all_answers
   else
     @answers.each.with_index do |a, i|
       puts "#{(i + 1)}) #{@answers[i].answer}"
-  end
+    end
   end
   main_menu
 end
 
 def submit_question(question)
   @submitted_questions << Questions.new(question)
-  thinking
-  give_answer
+  # thinking
+  give_answer(question)
 end
 
-def give_answer
-  if @cloned_answer_list.length > 20
-    puts @cloned_answer_list.sample.answer
+def give_answer(question)
+  if @cloned_answer_list.length > @answers.length
+    given_a = @cloned_answer_list.sample.answer
+    puts given_a.colorize(:blue)
   else
-    puts @answers.sample.answer
+    given_a = @answers.sample.answer
+    puts given_a.colorize(:blue)
   end
+  @result << QandA.new(question, given_a)
   main_menu
 end
 
@@ -148,9 +161,9 @@ def reset_answers_to_start
   main_menu
 end
 
-def clear_terminal
-  print `clear`
-  main_menu
+def give_results
+
+
 end
 
 # FORMATTING METHODS
@@ -169,6 +182,11 @@ end
 
 def prompt
   print "question> ".colorize(:blue)
+end
+
+def clear_terminal
+  print `clear`
+  main_menu
 end
 
 MagicEightBall.new
